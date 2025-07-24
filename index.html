@@ -55,6 +55,36 @@
         box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
         backdrop-filter: blur(8px);
         border: 1px solid rgba(255, 255, 255, 0.18);
+        position: relative;
+        overflow: hidden;
+        background-image: 
+          radial-gradient(circle at 200px 180px, rgba(150,150,150,0.1) 3px, transparent 3px),
+          radial-gradient(circle at 260px 160px, rgba(150,150,150,0.1) 3px, transparent 3px),
+          radial-gradient(circle at 320px 180px, rgba(150,150,150,0.1) 3px, transparent 3px),
+          radial-gradient(circle at 380px 160px, rgba(150,150,150,0.1) 3px, transparent 3px),
+          radial-gradient(circle at 440px 180px, rgba(150,150,150,0.1) 3px, transparent 3px),
+          radial-gradient(circle at 500px 160px, rgba(150,150,150,0.1) 3px, transparent 3px),
+          linear-gradient(45deg, transparent 48%, rgba(150,150,150,0.05) 49%, rgba(150,150,150,0.05) 51%, transparent 52%),
+          linear-gradient(-45deg, transparent 48%, rgba(150,150,150,0.05) 49%, rgba(150,150,150,0.05) 51%, transparent 52%),
+          linear-gradient(15deg, transparent 48%, rgba(150,150,150,0.05) 49%, rgba(150,150,150,0.05) 51%, transparent 52%);
+        background-size: 
+          600px 400px,
+          600px 400px, 
+          600px 400px, 
+          600px 400px, 
+          600px 400px, 
+          600px 400px,
+          60px 60px,
+          60px 60px,
+          120px 120px;
+        background-position: center;
+        background-repeat: no-repeat;
+      }
+      
+      
+      .container > * {
+        position: relative;
+        z-index: 1;
       }
       h1 {
         font-size: 1.8rem;
@@ -201,6 +231,12 @@
         #equationsContainer > div > div { 
           grid-template-columns: 1fr !important; 
         }
+        .MathJax {
+          font-size: 0.9em !important;
+        }
+        mjx-container[display="true"] {
+          margin: 0.5em 0 !important;
+        }
         .estradiol-structure { 
           display: none; 
         }
@@ -233,90 +269,101 @@
       </svg>
     </div>
     <div class="container">
-      <h1>Free Estradiol Estimator</h1>
-      <p>Note: Results may be lower if you're taking Boron or if T is a significant proportion of SHBG.</p>
-      <p>
+      
+      <div style="text-align: right; margin-bottom: 1rem;">
+        <button onclick="toggleLanguage()" id="langToggle" style="background: #007bff; color: white; border: none; padding: 0.3rem 0.8rem; border-radius: 4px; cursor: pointer;">🇺🇦 UA</button>
+      </div>
+      <h1 id="title">Free Estradiol Estimator</h1>
+      <p id="note">Note: Results may be lower if you're taking Boron or if T is a significant proportion of SHBG.</p>
+      <p id="instructions">
         To use, enter your E2 and T in either SI or US units, then click the button to calculate.
       </p>
-      <p><i>Equations are from Vermeulen et al: <a href="https://cebp.aacrjournals.org/content/11/10/1065" target="_blank">reference</a>.</i></p>
+      <p id="reference"><i>Equations are from Vermeulen et al: <a href="https://cebp.aacrjournals.org/content/11/10/1065" target="_blank">reference</a>.</i></p>
 
       <table>
         <tr>
-          <td><span class="tooltip" data-tooltip="Primary female sex hormone, regulates reproductive functions">Estradiol (E2) pmol/L</span></td>
+          <td><span class="tooltip" id="e2Label" data-tooltip="Primary female sex hormone, regulates reproductive functions">Estradiol (E2) pmol/L</span></td>
           <td><input id="E2SI" type="text" value="0" onchange="E2SIChange(this.value)" /></td>
           <td>pg/mL</td>
           <td><input id="E2US" type="text" value="0" onchange="E2USChange(this.value)" /></td>
         </tr>
         <tr>
-          <td><span class="tooltip" data-tooltip="Primary male sex hormone, important for muscle mass and bone density">Testosterone (T) nmol/L</span></td>
+          <td><span class="tooltip" id="tLabel" data-tooltip="Primary male sex hormone, important for muscle mass and bone density">Testosterone (T) nmol/L</span></td>
           <td><input id="TSI" type="text" value="0" onchange="TSIChange(this.value)" /></td>
           <td>ng/dL</td>
           <td><input id="TUS" type="text" value="0" onchange="TUSChange(this.value)" /></td>
         </tr>
         <tr>
-          <td><span class="tooltip" data-tooltip="Sex Hormone-Binding Globulin - protein that binds and transports hormones">SHBG nmol/L</span></td>
+          <td><span class="tooltip" id="shbgLabel" data-tooltip="Sex Hormone-Binding Globulin - protein that binds and transports hormones">SHBG nmol/L</span></td>
           <td colspan="3"><input id="SHBG" type="text" value="0" /></td>
         </tr>
         <tr>
-          <td><span class="tooltip" data-tooltip="Albumin protein concentration - pre-filled with typical value (43.2 g/L) since most people don't know their albumin levels">Albumin g/L</span></td>
+          <td><span class="tooltip" id="albuminLabel" data-tooltip="Albumin protein concentration - pre-filled with typical value (43.2 g/L) since most people don't know their albumin levels">Albumin g/L</span></td>
           <td colspan="3"><input id="Albumin" type="text" value="43.2" /></td>
         </tr>
       </table>
 
-      <input type="button" value="Calculate Free E2" onclick="CalculateFreeE2()" />
-      <input type="button" value="Fill Example Values" onclick="fillExampleValues()" style="margin-left: 1rem; background-color: #28a745;" />
+      <input type="button" id="calculateBtn" value="Calculate Free E2" onclick="CalculateFreeE2()" />
+      <input type="button" id="exampleBtn" value="Fill Example Values" onclick="fillExampleValues()" style="margin-left: 1rem; background-color: #28a745;" />
+      <input type="button" id="pdfBtn" value="Generate PDF Report" onclick="generatePDFReport()" style="margin-left: 1rem; background-color: #dc3545; display: none;" />
 
       <table class="results-table">
         <tr>
-          <td>Free E2 pmol/L</td>
+          <td id="freeE2SILabel">Free E2 pmol/L</td>
           <td><span id="FreeE2SI" class="result-value"></span></td>
-          <td>Free E2 pg/mL</td>
+          <td id="freeE2USLabel">Free E2 pg/mL</td>
           <td><span id="FreeE2US" class="result-value"></span></td>
         </tr>
         <tr>
-          <td>Free T pmol/L</td>
+          <td id="freeTSILabel">Free T pmol/L</td>
           <td><span id="FreeTSI" class="result-value"></span></td>
-          <td>Free T ng/dL</td>
+          <td id="freeTUSLabel">Free T ng/dL</td>
           <td><span id="FreeTUS" class="result-value"></span></td>
         </tr>
       </table>
 
       <div id="chartContainer" style="display: none; margin-top: 2rem;">
-        <h3 style="text-align: center; margin-bottom: 1rem;">Hormone Distribution</h3>
+        <h3 id="chartTitle" style="text-align: center; margin-bottom: 1rem;">Hormone Distribution</h3>
         <div style="display: flex; gap: 2rem; justify-content: center;">
           <div class="chart-section">
-            <h4>Estradiol (E2)</h4>
+            <h4 id="e2ChartTitle">Estradiol (E2)</h4>
             <canvas id="e2Chart" width="200" height="200"></canvas>
           </div>
           <div class="chart-section">
-            <h4>Testosterone (T)</h4>
+            <h4 id="tChartTitle">Testosterone (T)</h4>
             <canvas id="tChart" width="200" height="200"></canvas>
           </div>
         </div>
       </div>
 
       <div id="equationsContainer" style="margin-top: 2rem; background: #f8f9fa; padding: 1.5rem; border-radius: 8px;">
-        <h3 style="text-align: center; margin-bottom: 1rem;">Vermeulen Equations</h3>
-        <div style="font-family: 'Courier New', monospace; font-size: 0.9rem; line-height: 1.8;">
+        <h3 id="equationsTitle" style="text-align: center; margin-bottom: 1rem;">Vermeulen Equations</h3>
+        <div style="font-size: 0.95rem; line-height: 2;">
           <p><strong>Free E2 calculation:</strong></p>
-          <p>fE2 = (E2 - N2 × fE2) / (KsE2 × (SHBG - E2 + N2 × fE2))</p>
-          <p>where N2 = (KaE2 × Ca) + 1</p>
-          <br>
+          <div style="text-align: center; margin: 1rem 0;">
+            $$f_{E2} = \frac{E2 - N_2 \cdot f_{E2}}{K_{sE2} \cdot (SHBG - E2 + N_2 \cdot f_{E2})}$$
+            <br>
+            $$\text{where } N_2 = (K_{aE2} \times C_a) + 1$$
+          </div>
+          
           <p><strong>Free T calculation:</strong></p>
-          <p>fT = (T - N1 × fT) / (KsT × (SHBG - T + N1 × fT))</p>
-          <p>where N1 = (KaT × Ca) + 1</p>
-          <br>
+          <div style="text-align: center; margin: 1rem 0;">
+            $$f_T = \frac{T - N_1 \cdot f_T}{K_{sT} \cdot (SHBG - T + N_1 \cdot f_T)}$$
+            <br>
+            $$\text{where } N_1 = (K_{aT} \times C_a) + 1$$
+          </div>
+          
           <p><strong>Constants:</strong></p>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
             <div>
-              <p>KaE2 = 4.21×10⁴ L/mol (E2-Albumin)</p>
-              <p>KsE2 = 3.14×10⁸ L/mol (E2-SHBG)</p>
-              <p>KaT = 4.06×10⁴ L/mol (T-Albumin)</p>
+              <p>$K_{aE2} = 4.21 \times 10^4 \text{ L/mol}$ (E2-Albumin)</p>
+              <p>$K_{sE2} = 3.14 \times 10^8 \text{ L/mol}$ (E2-SHBG)</p>
+              <p>$K_{aT} = 4.06 \times 10^4 \text{ L/mol}$ (T-Albumin)</p>
             </div>
             <div>
-              <p>KsT = 1.0×10⁹ L/mol (T-SHBG)</p>
-              <p>Ca = Albumin/66500 mol/L (from input)</p>
-              <p>Solved iteratively to 1×10⁻¹⁵ precision</p>
+              <p>$K_{sT} = 1.0 \times 10^9 \text{ L/mol}$ (T-SHBG)</p>
+              <p>$C_a = \frac{\text{Albumin}}{66500} \text{ mol/L}$ (from input)</p>
+              <p>Solved iteratively to $1 \times 10^{-15}$ precision</p>
             </div>
           </div>
         </div>
@@ -422,6 +469,7 @@
         
         // Show and animate charts
         document.getElementById('chartContainer').style.display = 'block';
+        document.getElementById('pdfBtn').style.display = 'inline-block';
         setTimeout(() => {
           drawPieChart('e2Chart', parseFloat(fE2percent), 'Estradiol');
           drawPieChart('tChart', parseFloat(fTpercent), 'Testosterone');
@@ -542,6 +590,281 @@
         TUSChange(0.7);
       }
 
+      // Reference ranges database
+      const referenceRanges = {
+        freeE2_pmol: { normal: "15-50", low: "<15", high: ">50" },
+        freeE2_pg: { normal: "4.1-13.6", low: "<4.1", high: ">13.6" },
+        freeT_pmol: { normal: "225-725", low: "<225", high: ">725" },
+        freeT_ng: { normal: "6.5-21", low: "<6.5", high: ">21" }
+      };
+
+      function interpretResult(value, ranges) {
+        const val = parseFloat(value);
+        const normalRange = ranges.normal.split('-');
+        const min = parseFloat(normalRange[0]);
+        const max = parseFloat(normalRange[1]);
+        
+        if (val < min) return { status: 'LOW', color: '#dc3545' };
+        if (val > max) return { status: 'HIGH', color: '#dc3545' };
+        return { status: 'NORMAL', color: '#28a745' };
+      }
+
+      // PDF translations
+      const pdfTranslations = {
+        en: {
+          title: 'HORMONE ANALYSIS REPORT',
+          subtitle: 'Free Estradiol & Testosterone Calculator',
+          patient: 'Patient: ________________________',
+          date: 'Date: ',
+          reportId: 'Report ID: ',
+          inputValues: 'INPUT VALUES',
+          calculatedResults: 'CALCULATED RESULTS',
+          freeEstradiol: 'Free Estradiol (E2):',
+          freeTestosterone: 'Free Testosterone (T):',
+          methodology: 'METHODOLOGY',
+          calculations: 'Calculations based on Vermeulen et al. equations:',
+          equation: '• Free hormone = (Total - N × Free) / (Ks × (SHBG - Total + N × Free))',
+          precision: '• Solved iteratively to 1×10⁻¹⁵ precision',
+          constants: '• Albumin binding constants: KaE2=4.21×10⁴, KaT=4.06×10⁴ L/mol',
+          disclaimer: 'DISCLAIMER: This report is for educational purposes only. Consult a healthcare professional for medical advice.',
+          generated: 'Generated by Free Estradiol Estimator - https://pmapcat.github.io/freee2simulator/',
+          filename: 'hormone-analysis-report.pdf',
+          normal: 'NORMAL',
+          low: 'LOW',
+          high: 'HIGH',
+          reference: 'Reference: '
+        },
+        ua: {
+          title: 'ЗВІТ АНАЛІЗУ ГОРМОНІВ',
+          subtitle: 'Калькулятор Вільного Естрадіолу та Тестостерону',
+          patient: 'Пацієнт: ________________________',
+          date: 'Дата: ',
+          reportId: 'ID звіту: ',
+          inputValues: 'ВХІДНІ ЗНАЧЕННЯ',
+          calculatedResults: 'РОЗРАХОВАНІ РЕЗУЛЬТАТИ',
+          freeEstradiol: 'Вільний Естрадіол (E2):',
+          freeTestosterone: 'Вільний Тестостерон (T):',
+          methodology: 'МЕТОДОЛОГІЯ',
+          calculations: 'Розрахунки базуються на рівняннях Vermeulen та ін.:',
+          equation: '• Вільний гормон = (Загальний - N × Вільний) / (Ks × (ГСЗГ - Загальний + N × Вільний))',
+          precision: '• Розв\'язується ітеративно з точністю до 1×10⁻¹⁵',
+          constants: '• Константи зв\'язування з альбуміном: KaE2=4.21×10⁴, KaT=4.06×10⁴ л/моль',
+          disclaimer: 'ВІДМОВА ВІД ВІДПОВІДАЛЬНОСТІ: Цей звіт призначений лише для освітніх цілей. Зверніться до медичного працівника за медичною консультацією.',
+          generated: 'Створено Калькулятором Вільного Естрадіолу - https://pmapcat.github.io/freee2simulator/',
+          filename: 'zvit-analizu-gormoniv.pdf',
+          normal: 'НОРМА',
+          low: 'НИЗЬКО',
+          high: 'ВИСОКО',
+          reference: 'Норма: '
+        }
+      };
+
+      function generatePDFReport() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const pdfLang = pdfTranslations['en']; // Always use English for PDF
+        
+        // Get current values
+        const e2SI = document.getElementById("FreeE2SI").innerText.split(' ')[0];
+        const e2US = document.getElementById("FreeE2US").innerText.split(' ')[0];
+        const tSI = document.getElementById("FreeTSI").innerText.split(' ')[0];
+        const tUS = document.getElementById("FreeTUS").innerText.split(' ')[0];
+        const e2Input = document.getElementById("E2SI").value;
+        const tInput = document.getElementById("TSI").value;
+        const shbgInput = document.getElementById("SHBG").value;
+        const albuminInput = document.getElementById("Albumin").value;
+        
+        // Interpret results
+        const e2SIInterpretation = interpretResult(e2SI, referenceRanges.freeE2_pmol);
+        const e2USInterpretation = interpretResult(e2US, referenceRanges.freeE2_pg);
+        const tSIInterpretation = interpretResult(tSI, referenceRanges.freeT_pmol);
+        const tUSInterpretation = interpretResult(tUS, referenceRanges.freeT_ng);
+        
+        // Translate status
+        function translateStatus(status) {
+          if (status === 'NORMAL') return pdfLang.normal;
+          if (status === 'LOW') return pdfLang.low;
+          if (status === 'HIGH') return pdfLang.high;
+          return status;
+        }
+        
+        // Header
+        doc.setFillColor(41, 128, 185);
+        doc.rect(0, 0, 210, 35, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(20);
+        doc.setFont(undefined, 'bold');
+        doc.text(pdfLang.title, 105, 15, { align: 'center' });
+        doc.setFontSize(12);
+        doc.text(pdfLang.subtitle, 105, 25, { align: 'center' });
+        
+        // Patient info section
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
+        doc.text(pdfLang.patient, 20, 50);
+        doc.text(pdfLang.date + new Date().toLocaleDateString(), 120, 50);
+        doc.text(pdfLang.reportId + crypto.randomUUID().slice(0, 8).toUpperCase(), 20, 60);
+        
+        // Input values section
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.text(pdfLang.inputValues, 20, 80);
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+        doc.text('Estradiol (E2): ' + e2Input + ' pmol/L', 20, 90);
+        doc.text('Testosterone (T): ' + tInput + ' nmol/L', 20, 100);
+        doc.text('SHBG: ' + shbgInput + ' nmol/L', 20, 110);
+        doc.text('Albumin: ' + albuminInput + ' g/L', 20, 120);
+        
+        // Results section
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.text(pdfLang.calculatedResults, 20, 140);
+        
+        // Free E2 results
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+        doc.text(pdfLang.freeEstradiol, 20, 155);
+        doc.text('• ' + e2SI + ' pmol/L', 25, 165);
+        doc.setTextColor(e2SIInterpretation.color === '#28a745' ? 0 : 220, e2SIInterpretation.color === '#28a745' ? 128 : 53, e2SIInterpretation.color === '#28a745' ? 69 : 69);
+        doc.text('[' + e2SIInterpretation.status + '] ' + pdfLang.reference + referenceRanges.freeE2_pmol.normal + ' pmol/L', 80, 165);
+        doc.setTextColor(0, 0, 0);
+        doc.text('• ' + e2US + ' pg/mL', 25, 175);
+        doc.setTextColor(e2USInterpretation.color === '#28a745' ? 0 : 220, e2USInterpretation.color === '#28a745' ? 128 : 53, e2USInterpretation.color === '#28a745' ? 69 : 69);
+        doc.text('[' + e2USInterpretation.status + '] ' + pdfLang.reference + referenceRanges.freeE2_pg.normal + ' pg/mL', 80, 175);
+        
+        // Free T results
+        doc.setTextColor(0, 0, 0);
+        doc.text(pdfLang.freeTestosterone, 20, 190);
+        doc.text('• ' + tSI + ' pmol/L', 25, 200);
+        doc.setTextColor(tSIInterpretation.color === '#28a745' ? 0 : 220, tSIInterpretation.color === '#28a745' ? 128 : 53, tSIInterpretation.color === '#28a745' ? 69 : 69);
+        doc.text('[' + tSIInterpretation.status + '] ' + pdfLang.reference + referenceRanges.freeT_pmol.normal + ' pmol/L', 80, 200);
+        doc.setTextColor(0, 0, 0);
+        doc.text('• ' + tUS + ' ng/dL', 25, 210);
+        doc.setTextColor(tUSInterpretation.color === '#28a745' ? 0 : 220, tUSInterpretation.color === '#28a745' ? 128 : 53, tUSInterpretation.color === '#28a745' ? 69 : 69);
+        doc.text('[' + tUSInterpretation.status + '] ' + pdfLang.reference + referenceRanges.freeT_ng.normal + ' ng/dL', 80, 210);
+        
+        // Methodology section
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.text(pdfLang.methodology, 20, 230);
+        doc.setFontSize(9);
+        doc.setFont(undefined, 'normal');
+        doc.text(pdfLang.calculations, 20, 240);
+        doc.text(pdfLang.equation, 20, 250);
+        doc.text(pdfLang.precision, 20, 260);
+        doc.text(pdfLang.constants, 20, 270);
+        
+        // Footer disclaimer
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        doc.text(pdfLang.disclaimer, 20, 285);
+        doc.text(pdfLang.generated, 20, 292);
+        
+        // Save the PDF
+        doc.save(pdfLang.filename);
+      }
+
+      // Language system
+      let currentLanguage = 'en';
+      
+      const translations = {
+        en: {
+          title: 'Free Estradiol Estimator',
+          note: 'Note: Results may be lower if you\'re taking Boron or if T is a significant proportion of SHBG.',
+          instructions: 'To use, enter your E2 and T in either SI or US units, then click the button to calculate.',
+          reference: 'Equations are from Vermeulen et al: <a href="https://cebp.aacrjournals.org/content/11/10/1065" target="_blank">reference</a>.',
+          e2Label: 'Estradiol (E2) pmol/L',
+          tLabel: 'Testosterone (T) nmol/L',
+          shbgLabel: 'SHBG nmol/L',
+          albuminLabel: 'Albumin g/L',
+          calculateBtn: 'Calculate Free E2',
+          exampleBtn: 'Fill Example Values',
+          pdfBtn: 'Generate PDF Report',
+          freeE2SILabel: 'Free E2 pmol/L',
+          freeE2USLabel: 'Free E2 pg/mL',
+          freeTSILabel: 'Free T pmol/L',
+          freeTUSLabel: 'Free T ng/dL',
+          chartTitle: 'Hormone Distribution',
+          e2ChartTitle: 'Estradiol (E2)',
+          tChartTitle: 'Testosterone (T)',
+          equationsTitle: 'Vermeulen Equations',
+          langToggle: '🇺🇦 UA',
+          tooltips: {
+            e2: 'Primary female sex hormone, regulates reproductive functions',
+            t: 'Primary male sex hormone, important for muscle mass and bone density',
+            shbg: 'Sex Hormone-Binding Globulin - protein that binds and transports hormones',
+            albumin: 'Albumin protein concentration - pre-filled with typical value (43.2 g/L) since most people don\'t know their albumin levels'
+          }
+        },
+        ua: {
+          title: 'Калькулятор Вільного Естрадіолу',
+          note: 'Примітка: Результати можуть бути нижчими, якщо ви приймаєте Бор або якщо T становить значну частку SHBG.',
+          instructions: 'Для використання введіть ваші E2 та T в одиницях SI або US, потім натисніть кнопку для розрахунку.',
+          reference: 'Рівняння від Vermeulen та ін.: <a href="https://cebp.aacrjournals.org/content/11/10/1065" target="_blank">посилання</a>.',
+          e2Label: 'Естрадіол (E2) пмоль/л',
+          tLabel: 'Тестостерон (T) нмоль/л',
+          shbgLabel: 'ГСЗГ нмоль/л',
+          albuminLabel: 'Альбумін г/л',
+          calculateBtn: 'Розрахувати Вільний E2',
+          exampleBtn: 'Заповнити Приклад',
+          pdfBtn: 'Створити PDF Звіт',
+          freeE2SILabel: 'Вільний E2 пмоль/л',
+          freeE2USLabel: 'Вільний E2 пг/мл',
+          freeTSILabel: 'Вільний T пмоль/л',
+          freeTUSLabel: 'Вільний T нг/дл',
+          chartTitle: 'Розподіл Гормонів',
+          e2ChartTitle: 'Естрадіол (E2)',
+          tChartTitle: 'Тестостерон (T)',
+          equationsTitle: 'Рівняння Vermeulen',
+          langToggle: '🇺🇸 EN',
+          tooltips: {
+            e2: 'Основний жіночий статевий гормон, регулює репродуктивні функції',
+            t: 'Основний чоловічий статевий гормон, важливий для м\'язової маси та щільності кісток',
+            shbg: 'Глобулін, що зв\'язує статеві гормони - білок, який зв\'язує та транспортує гормони',
+            albumin: 'Концентрація білка альбуміну - заповнено типовим значенням (43.2 г/л), оскільки більшість людей не знають свого рівня альбуміну'
+          }
+        }
+      };
+
+      function toggleLanguage() {
+        currentLanguage = currentLanguage === 'en' ? 'ua' : 'en';
+        updateLanguage();
+      }
+
+      function updateLanguage() {
+        const lang = translations[currentLanguage];
+        
+        // Update text elements
+        document.getElementById('title').innerText = lang.title;
+        document.getElementById('note').innerText = lang.note;
+        document.getElementById('instructions').innerText = lang.instructions;
+        document.getElementById('reference').innerHTML = '<i>' + lang.reference + '</i>';
+        document.getElementById('e2Label').innerText = lang.e2Label;
+        document.getElementById('tLabel').innerText = lang.tLabel;
+        document.getElementById('shbgLabel').innerText = lang.shbgLabel;
+        document.getElementById('albuminLabel').innerText = lang.albuminLabel;
+        document.getElementById('calculateBtn').value = lang.calculateBtn;
+        document.getElementById('exampleBtn').value = lang.exampleBtn;
+        document.getElementById('pdfBtn').value = lang.pdfBtn;
+        document.getElementById('freeE2SILabel').innerText = lang.freeE2SILabel;
+        document.getElementById('freeE2USLabel').innerText = lang.freeE2USLabel;
+        document.getElementById('freeTSILabel').innerText = lang.freeTSILabel;
+        document.getElementById('freeTUSLabel').innerText = lang.freeTUSLabel;
+        document.getElementById('chartTitle').innerText = lang.chartTitle;
+        document.getElementById('e2ChartTitle').innerText = lang.e2ChartTitle;
+        document.getElementById('tChartTitle').innerText = lang.tChartTitle;
+        document.getElementById('equationsTitle').innerText = lang.equationsTitle;
+        document.getElementById('langToggle').innerHTML = lang.langToggle;
+        
+        // Update tooltips
+        document.getElementById('e2Label').setAttribute('data-tooltip', lang.tooltips.e2);
+        document.getElementById('tLabel').setAttribute('data-tooltip', lang.tooltips.t);
+        document.getElementById('shbgLabel').setAttribute('data-tooltip', lang.tooltips.shbg);
+        document.getElementById('albuminLabel').setAttribute('data-tooltip', lang.tooltips.albumin);
+      }
+
       // Molecular animation system
       class MoleculeSystem {
         constructor(canvas) {
@@ -643,6 +966,17 @@
         const canvas = document.getElementById('moleculeCanvas');
         new MoleculeSystem(canvas);
       });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        }
+      };
     </script>
   </body>
 </html>
