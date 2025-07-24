@@ -60,10 +60,16 @@
       input[type="button"]:hover {
         background-color: #0056b3;
       }
-      .result {
-        font-weight: bold;
-        font-size: 1rem;
-        margin-top: 1rem;
+      .results-table {
+        margin-top: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+      }
+      .result-value {
+        color: #007bff;
+        font-weight: 600;
+        font-size: 1.1rem;
       }
       .footer {
         text-align: center;
@@ -102,13 +108,22 @@
       </table>
 
       <input type="button" value="Calculate Free E2" onclick="CalculateFreeE2()" />
+      <input type="button" value="Fill Example Values" onclick="fillExampleValues()" style="margin-left: 1rem; background-color: #28a745;" />
 
-      <div class="result">
-        <p>Free E2 pmol/L: <span id="FreeE2SI"></span></p>
-        <p>Free E2 pg/mL: <span id="FreeE2US"></span></p>
-        <p>Free T pmol/L: <span id="FreeTSI"></span></p>
-        <p>Free T ng/dL: <span id="FreeTUS"></span></p>
-      </div>
+      <table class="results-table">
+        <tr>
+          <td>Free E2 pmol/L</td>
+          <td><span id="FreeE2SI" class="result-value"></span></td>
+          <td>Free E2 pg/mL</td>
+          <td><span id="FreeE2US" class="result-value"></span></td>
+        </tr>
+        <tr>
+          <td>Free T pmol/L</td>
+          <td><span id="FreeTSI" class="result-value"></span></td>
+          <td>Free T ng/dL</td>
+          <td><span id="FreeTUS" class="result-value"></span></td>
+        </tr>
+      </table>
 
       <div class="footer">
         For issues, contact <i>u/Ally-SR</i> on Reddit.
@@ -168,7 +183,7 @@
 
         const AT = KaT * Ca * fT;
         const SHBGT = T - AT - fT;
-        if (SHBGT > CSHBG / 20) alert("T is stealing SHBG, Free E2 may be underestimated");
+        if (SHBGT > CSHBG / 20) alert("High testosterone is competing for SHBG binding sites, leaving less SHBG available for estradiol. This means your Free E2 calculation may be underestimated.");
 
         const fE2percent = ((fE2 / E2) * 100).toFixed(2),
           fTpercent = ((fT / T) * 100).toFixed(2);
@@ -177,6 +192,14 @@
         document.getElementById("FreeE2US").innerText = (fE2 * 1e12 * 0.2724).toFixed(2) + ` (${fE2percent}%)`;
         document.getElementById("FreeTSI").innerText = (fT * 1e12).toFixed(2) + ` (${fTpercent}%)`;
         document.getElementById("FreeTUS").innerText = (fT * 1e9 * 28.842).toFixed(2) + ` (${fTpercent}%)`;
+      }
+
+      function fillExampleValues() {
+        document.getElementById("E2US").value = "350";
+        document.getElementById("TUS").value = "0.7";
+        document.getElementById("SHBG").value = "110";
+        E2USChange(350);
+        TUSChange(0.7);
       }
     </script>
   </body>
