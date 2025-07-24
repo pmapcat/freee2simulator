@@ -160,6 +160,7 @@
         increment = 1e-9;
         while (fTdiff > 1e-15) {
           const fTp = (T - N1 * fT) / (KsT * (CSHBG - T + N1 * fT));
+          lastdiff = fTdiff;
           fTdiff = Math.abs(fTp - fT);
           if (fTdiff > lastdiff) increment = -increment / 10;
           fT += increment;
